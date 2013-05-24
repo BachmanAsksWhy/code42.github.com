@@ -1,0 +1,56 @@
+body {
+  font: 13px helvetica,arial,freesans,clean,sans-serif;
+  line-height: 1.4em;
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#F9F9F9));
+  padding-top: 20px;
+  padding-bottom: 40px;
+}
+
+.container-body {
+  margin: 0 auto;
+  max-width: 900px;
+}
+.container-body > hr {
+  margin: 30px 0;
+}
+
+.doc-title {
+  margin: 30px 0;
+  text-align: center;
+}
+.doc-title .btn {
+  font-size: 18px;
+  padding: 14px 24px;
+}
+
+.documentation {
+  margin: 40px 0;
+}
+.documentation p + h4 {
+  margin-top: 28px;
+}
+
+pre {
+  line-height: 1.4em;
+  margin-top: 1em;
+  font: 12px Monaco,"Courier New","DejaVu Sans Mono","Bitstream Vera Sans Mono",monospace;
+}
+
+code {
+  background-color: #f5f5f5;
+  color: #333333;
+}
+
+h4 {
+  font-family: 'Asap', sans-serif;
+  color: rgb(230,96,30);
+}
+
+.nav-pills a {
+  color: rgb(230,96,30);
+}
+
+.nav-pills > .active > a {
+  color: #ffffff;
+  background-color: rgb(230,96,30);
+}

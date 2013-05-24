@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Code 42 API Docs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/ui-lightness/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/documents.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Asap:400,700' rel='stylesheet' type='text/css'>
+  </head>
+
+  <body>
+
+    <div class="container-body">
+
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <!-- these don't work/exist yet -->
+          <li class="active"><a href="#">API v1</a></li>
+          <li><a href="#">Changes</a></li>
+          <li><a href="#">Support</a></li>
+        </ul>
+        <img src="img/code42-logo.png">
+      </div>
+
+      <hr>
+
+      <div class="doc-title">
+        <h1>The Code 42 API Docs</h1>
+        <p class="lead">This resource documents how to get started with the official Code 42 API v1.</p>
+      </div>
+
+      <hr>
+
+      <div class="row-fluid documentation">
+        <div class="span8">
+          <div id="schema">
+            <h4>Schema</h4>
+            <p>The API for Crashplan is accessed over the domain: <code>www.crashplan.com</code>. The API access is over HTTPS and all requests and responses are sent and received as JSON.</p>
+            <code>$ curl -i -u 'username:password'  'https://www.crashplan.com/api/user/my';</code>
+<pre>
+HTTP/1.1 200 OK
+Server: nginx/1.1.19
+Date: Wed, 08 May 2013 17:00:24 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Cache-Control: no-store
+Pragma: no-cache
+</pre>
+            <p>Blank fields are treated as <code>NULL</code> values. All extraneous attributes are ignored.  All timestamps are formatted in ISO 8601 format with a timezone offset depending on the server location.</p>
+            <p> Example:</p>
+
+            <code>yyyy-MM-ddTHH:mm:ss.SSS-05:00</code>
+          </div>
+          <br />
+          <div id="parameters">
+            <h4>Parameters</h4>
+            <p>GET requests require an HTTP query string to pass parameters.</p>
+            <code>$ curl -i -u 'username:password' 'https://www.crashplan.com/api/user/my';</code>
+            <br />
+            <p>POST requests with parameters not included in the URL should be encoded as JSON, and specify a Content-Type of 'application/json'.</p>
+            <pre>$ curl -i -d '{ "company": "Test1", "email": "test@test.com", "customerId" : "123", "firstname": "test", "lastname": "test" }' -H 'Content-Type: application/json' 'https://www.crashplan.com/api/user'</pre>
+          </div>
+          <br />
+          <div id="client-errors">
+            <h4>Client Errors</h4>
+            <p>There are several possible types of client errors on API calls that receive request bodies:</p>
+            <ol>
+              <li>
+                Sending invalid JSON will result in a <code>500 Internal Server Error</code>.
+                <pre>HTTP/1.1 500 [{"name":"SYSTEM","description":"Exception converting object to JSON"}]</pre>
+              </li>
+              <li>
+                Sending the wrong content-type will result in a <code>415 Unsupported Media Type</code>
+                <pre>HTTP/1.1 415 Unsupported content type: json</pre>
+              </li>
+              <li>
+                All invalid fields are ignored and will not result in an error.
+              </li>
+              <li>
+                Sending requests over HTTP will result in a <code>302 Moved Temporarily</code>
+<pre>
+HTTP/1.1 302 Found
+Server: nginx/1.1.19
+Date: Wed, 08 May 2013 17:31:22 GMT
+Content-Length: 0
+Connection: keep-alive
+Cache-Control: no-store
+Pragma: no-cache
+Location: https://www.crashplan.com/api/user/my
+</pre>
+              </li>
+              <li>
+              Sending JSON that does not contain required fields will result in a <code>500 Internal Server Error</code>.
+              <pre>$ curl -i -u 'admin:admin' -d '{ "firstname": "test", "lastname": "test" }' -H 'Content-Type: application/json' 'https://devw.crashplan.com:4285/api/user'</pre>
+              <pre>< HTTP/1.1 500 [{"name":"SYSTEM","description":"Required org attributes: email"}]</pre>
+              </li>
+            </ol>
+          </div>
+          <br />
+          <div id="http-redirects">
+            <h4>HTTP Redirects</h4>
+            <p>The Code42 API uses redirects. Clients are expected to follow redirects and not treat them as errors. Example:</p>
+<pre>
+$ curl -i 'http://www.crashplan.com/api/user/my';
+HTTP/1.1 302 Found
+Server: nginx/1.1.19
+Date: Wed, 08 May 2013 17:04:48 GMT
+Content-Length: 0 
+Connection: keep-alive
+Cache-Control: no-store
+Pragma: no-cache
+Location: https://www.crashplan.com/api/user/my
+</pre>
+            <p>The request should be repeated to <code>https://www.crashplan.com/api/user/my</code>.</p>
+          </div>
+          <br />
+          <div id="http-verbs">
+            <h4>HTTP Verbs</h4>
+            <h5>GET</h5>
+            <p>Retrieve a resource.</p>
+            <h5>POST</h5>
+            <p>Create a new resource.</p>
+            <h5>PUT</h5>
+            <p>Update an existing resource.</p>
+            <h5>DELETE</h5>
+            <p>Destroy an existing resource.</p>
+          </div>
+          <br />
+          <div id="authentication">
+            <h4>Authentication</h4>
+            <p>There are three ways to authenticate API requests in Code42 API v1.  API calls that require authentication will only return <code>HTTP/1.1 302 Found</code> with no additional data.</p>
+            <ol>
+              <li> Basic Authentication
+              <code>$ curl -u "username:password" https://www.crashplan.com/api/user/my</code>
+              </li>
+              <li> Auth Token
+              <code>$ curl -u "username:password" https://www.crashplan.com/api/authToken </code>
+              </li>
+            <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+          </div>
+        </div>
+        <div class="span4">
+          <div id="accordion">
+            <h3>Contents</h3>
+            <div>
+              <ul>
+                <li><a href="#schema">Schema</a></li>
+                <li><a href="#parameters">Parameters</a></li>
+               <li><a href="#client-errors">Client Errors</a></li>
+               <li><a href="#http-redirects">HTTP Redirects</a></li>
+               <li><a href="#http-verbs">HTTP Verbs</a></li>
+               <li><a href="#authentication">Authentication</a> </li>
+             </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="footer">
+        <p>&copy; Code 42 2013</p>
+      </div>
+
+    </div> <!-- /container -->
+
+    <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/jquery-ui-1.10.3.custom.js"></script>
+    <script>
+    $(function() {
+      $( "#accordion" ).accordion();
+    });
+    </script>
+
+  </body>
+</html>
