@@ -59,13 +59,85 @@ Pragma: no-cache
           <br />
           <div id="parameters">
             <h4>Parameters</h4>
-            <p>GET requests require an HTTP query string to pass parameters.</p>
-            <code>$ curl -i -u 'username:password' 'https://www.crashplan.com/api/user/my';</code>
+            <p>GET requests either require an HTTP query string (i.e. ?x=y) or an ID as part of the main URL to specify which instance(s) are to be returned.</p>
+            <code>$ curl -i -u 'username:password' 'https://www.crashplan.com/api/User?q=joe@acme.com&active=true'</code>
+            <code>$ curl -i -u 'username:password' 'https://www.crashplan.com/api/User/123';</code>
             <br />
-            <p>POST requests with parameters not included in the URL should be encoded as JSON, and specify a Content-Type of 'application/json'.</p>
-            <pre>$ curl -i -d '{ "company": "Test1", "email": "test@test.com", "customerId" : "123", "firstname": "test", "lastname": "test" }' -H 'Content-Type: application/json' 'https://www.crashplan.com/api/user'</pre>
+            <br />
+            <p>POST and PUT requests do not accept a query string, but recive data in the body encoded as JSON.  Specify a Content-Type of 'application/json'.</p>
+            <pre>$ curl -X POST -i -u 'username:password' -d '{ "company": "Test1", "email": "test@test.com", "customerId" : "123", "firstname": "test", "lastname": "test" }' -H 'Content-Type: application/json' 'https://www.crashplan.com/api/user'</pre>
           </div>
           <br />
+          <div id="returnValues">
+            <h4>Return Values</h4>
+            <p>GET requests that have an ID specified on the main URL (examples below) return "one" resource (not in an array).  Other GET requests return instances in an array. (See the example "multi" request output below)</p>
+            <code>$ curl -i -u 'username:password' 'https://www.crashplan.com/api/User/123';</code>
+            <code>$ curl -i -u 'username:password' 'https://www.crashplan.com/api/User/my';</code>
+
+            <br /><br />
+	    Here is an example output for a "one" request (ID is in the main URL as above):<br/>
+<pre>
+{
+   "metadata":{
+      "timestamp":"2013-08-27T14:05:44.733-05:00",<
+      "params":{
+      }
+   },
+   "data":{
+      "userId":123,
+      "userUid":"c6ec2d26ce3805c1",
+      "status":"Active",
+      "username":"joe@acme.com",
+      "email":"joe@acme.com",
+      "firstName":"Joe",
+      "lastName":"Jones",
+      "orgId":42,
+      "orgName":"CrashPlan",
+      "active":true,
+      "blocked":false,
+      "orgType":"CONSUMER",
+      "creationDate":"2007-01-07T18:00:13.273-06:00",
+      "modificationDate":"2013-05-13T13:40:52.279-05:00"
+   }
+}
+</pre>
+	    <p>Note that <b>POST</b> requests usually return the resouce that was created with the generated id (like the example "one" output above) so you can find the created resource again.</p>
+
+	    Here is an example output for a "multi" request (using query parameters instead of an ID):<br/>
+<pre>
+GET User?active=true&pgNum=1&pgSize=2
+Would respond with:
+{
+   "metadata":{
+      "timestamp":"2013-08-27T14:05:44.733-05:00",
+      "params":{
+      }
+   },
+   "data": {
+      totalCount:5432,
+      users: [
+         {
+            "userId":123,
+            "userUid":"c6ec2d26ce3805c1",
+            "status":"Active",
+            "username":"joe@acme.com",
+            "email":"joe@acme.com",
+            ... [snipped]
+         },
+         {
+            "userId":456,
+            "userUid":"f1ad1da8b74328bz",
+            "status":"Active",
+            "username":"jim@slim.com",
+            "email":"jim@slim.com",
+            ... [snipped]
+         },
+      ]
+   }
+}
+</pre>
+          </div>
+	  <br/>
           <div id="client-errors">
             <h4>Client Errors</h4>
             <p>There are several possible types of client errors on API calls that receive request bodies:</p>
@@ -139,9 +211,11 @@ Location: https://www.crashplan.com/api/user/my
               <code>$ curl -u "username:password" https://www.crashplan.com/api/user/my</code>
               </li>
               <li> Auth Token
-              <code>$ curl -u "username:password" https://www.crashplan.com/api/authToken </code>
+	      <code>$ curl -u "username:password" https://www.crashplan.com/api/authToken </code><br/>
+	      Use the returned auth token like this (where &lt;token1&gt; and &lt;token2&gt; are placeholders for the real data):
+	      <code>curl --header "Authorization: token &lt;token1&gt;-&lt;token2&gt;" https://www.crashplan.com/api/User?active=true&pgSize=5&pgNum=1</code><br/>
               </li>
-            <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+	      <p>Note that there is a more complicated example detailing how to get an AuthToken for a storage node once you have an AuthToken for a master node (without having to send credentials again) in the <a href="https://github.com/code42/crashplan_api_examples/blob/master/getArchiveMetadata.sh">getArchiveMetadata.sh</a> script at <a href="https://github.com/code42/crashplan_api_examples">https://github.com/code42/crashplan_api_examples</a>.  However, even storage nodes will accept BASIC authentication, so BASIC may be your best option if you do not mind the performance hit.</p> 
           </div>
         </div>
         <div class="span4">
@@ -151,6 +225,7 @@ Location: https://www.crashplan.com/api/user/my
               <ul>
                 <li><a href="#schema">Schema</a></li>
                 <li><a href="#parameters">Parameters</a></li>
+                <li><a href="#returnValues">Return Values</a></li>
                <li><a href="#client-errors">Client Errors</a></li>
                <li><a href="#http-redirects">HTTP Redirects</a></li>
                <li><a href="#http-verbs">HTTP Verbs</a></li>
